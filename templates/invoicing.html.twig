@@ -1,0 +1,120 @@
+{% extends 'base.html.twig' %}
+
+{% block content %}
+    
+    <!-- Hidden modal form to generate invoices" -->
+    <div class="modal fade" id="generateInvoices" tabindex="-1">
+      <div class="modal-dialog">
+        <form method="POST" action="{{ url('generate_invoices') }}">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Generate invoices</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                  <span>&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                  <div class="form-group">
+                    <label for="year" class="col-form-label">Year:</label>
+                    <select class="form-control" name="year">
+                        {% for year in monthsWithReservationsByYear|keys %}
+                            {% if "now"|date('Y') == year %}
+                                <option value="{{ year }}" selected="selected">{{ year }}</option>
+                            {% else %}
+                                <option value="{{ year }}" >{{ year }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="month" class="col-form-label">Month:</label>
+                    <select class="form-control" name="month">
+                        {% for i in 1..12 %}
+                            {% set date = i ~ "/1/2016" %}
+                            <option value="{{ i }}">{{ date|date('F') }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Generate</button>
+              </div>
+            </div>
+        </form>
+      </div>
+    </div>
+    <!-- **************************************** -->
+
+    <div align="center">
+        <button type="button" class="btn btn-wehost btn-sm" onclick="$('#generateInvoices').modal()">
+            Generate an invoice
+        </button>
+    </div>
+
+    <hr />
+    
+    <div id="accordion">
+    {% set counter = 0 %}
+    {% for group in invoicesGroups %}
+        {% set counter = counter + 1 %}
+         
+        <div class="card">
+            <div class="card-header" id="headingOne">
+                <h5 class="mb-0">
+                    <button style="color:black; font-weight:bold;" class="btn btn-link" data-toggle="collapse" data-target="#collapse{{ counter }}">
+                        Invoices of {{ group.billingDate | date('F Y') }}
+                        - {{ group.invoicesCount }} invoices ({{ group.hostCount }} hosts)
+                        - {{ group.total|formatMoney }}
+                    </button>
+                </h5>
+            </div>
+
+            <div id="collapse{{ counter }}" class="collapse {{ counter == 1 ? 'show' : ''}} " data-parent="#accordion">
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Billing date</th>
+                                <th>Count</th>
+                                <th>Total</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="font-size:13px">
+                                <td>{{ group.billingDate | date('F Y') }} </td>
+                                <td>{{ group.invoicesCount }} invoices ({{ group.hostCount }} hosts)</td>
+                                <td>{{ group.total|formatMoney }}</td>
+                                <td>
+                                    <a href="{{ url('export_invoices', { 'yearMonth': group.billingDate|date('Y-m') }) }}">List</a>
+                                    {#
+                                        <a style="color:red; font-weight: bold" href="{{ url('generate_invoices') }}?year={{ group.billingDate|date('Y') }}&month={{ group.billingDate|date('m') }}">Regenerate</a>
+                                    #}
+                                </td>
+                            </tr>
+                            
+                            {% for marketGroup in group['markets'] %}
+                            <tr style="font-size:13px">
+                                <td style="padding-left:50px">-> {{ marketGroup.marketName }}</td>
+                                <td>{{ marketGroup.invoicesCount }} invoices ({{ marketGroup.hostCount }} hosts)</td>
+                                <td>{{ marketGroup.total|formatMoney }}</td>
+                                <td>
+                                    <a href="{{ url('export_invoices', { 'yearMonth': group.billingDate|date('Y-m'), 'marketId': marketGroup.marketId }) }}">Detail</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+   
+    </div>
+{% endblock %}
+
+{% block javascript %}
+
+{% endblock %}

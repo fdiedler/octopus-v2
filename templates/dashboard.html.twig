@@ -1,0 +1,267 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    <link rel='stylesheet' href="{{ asset('bundles/fullcalendar/css/fullcalendar/fullcalendar.min.css') }}">
+    <link rel='stylesheet' href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar-scheduler/1.9.4/scheduler.min.css">
+    
+    <style>
+        .fc-widget-header {
+            font-size: 0.9em;
+            text-align:center;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+    {# Default Paris for Market #}
+    {% set cityManager = "" %}
+
+    {% if debug|length > 0 %}
+        <pre>{{ dump(debug) }}</pre>
+    {% else %}
+        {% if markets|length == 1 %}
+            {% set cityManager = " - City manager of #{markets[0]}" %}
+        {% else %}
+            {% set cityManager = "(Admin)" %}
+        {% endif %}
+    {% endif %}
+    
+    <h2>Welcome {{ (app.user.username|split('@'))[0]|capitalize  }} {{ cityManager }} </h2>
+
+    <div class="tab">
+        {% if alerts["warning"]|length > 0 or alerts["error"]|length > 0 %}
+            <button id="section1" class="tablinks" onclick="changeTab(event, 'Alerts')" style="color:red;">Alerts</button>
+        {% endif %}
+        
+        <button id="section2" class="tablinks" onclick="changeTab(event, 'Operational')">Operational</button>
+        <button id="section3" class="tablinks" onclick="changeTab(event, 'Calendar')">Calendar</button>
+    </div>
+
+    {% include 'partials/dashboard-alerts.html.twig' %}
+    
+    {% include 'partials/dashboard-op.html.twig' %}
+    
+    {% include 'partials/dashboard-op-calendar.html.twig' %}
+    
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript" src="{{ asset('bundles/fullcalendar/js/fullcalendar/lib/moment.min.js') }}"></script>
+<script type="text/javascript" src="{{ asset('bundles/fullcalendar/js/fullcalendar/fullcalendar.min.js') }}"></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar-scheduler/1.9.4/scheduler.min.js'></script>
+
+<script type="text/javascript">
+    
+    $('#date_selector').change(function() {
+        var route = '{{ url('dashboard', { 'date': 'selected_date', 'marketId':selectedMarket }) }}'
+        route = route.replace("selected_date", $("#date_selector").val());
+        window.location.href = route;
+    });
+
+    function changeTab(evt, tabId)
+    {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tabcontent");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+        tablinks = document.getElementsByClassName("tablinks");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" activate", "");
+        }
+        document.getElementById(tabId).style.display = "block";
+        evt.currentTarget.className += " activate";
+        
+        // When we simulate tab click event, the clientX and client Y are set to zero.
+        // When the user clicks on a tab, these values are positive.
+        // Do not store the active tab in session when we simulate tab click event.
+        if (evt.clientX > 0 && evt.clientY > 0)
+        {
+            // Store active tab
+            localStorage.setItem('activeTab', evt.currentTarget.id);
+        }
+        
+        // Need to redraw the full calendar when activating the tab
+        if (tabId == "Calendar")
+        {
+            loadCalendar();
+        }
+    }
+    
+    function changeNbResa()
+    {
+        var nbResaArray = {{ nbReservation|json_encode|raw }};
+        var markets = document.getElementById("market");
+        if (markets == null)
+        {
+            // For regular users
+            for (var key in nbResaArray)
+            {
+                document.getElementById("nbresa").innerHTML = nbResaArray[key]["nbresa"];
+                if (nbResaArray[key]["nbresaObjective"] != -1)
+                    document.getElementById("nbresaObjective").innerHTML = nbResaArray[key]["nbresaObjective"];
+            }
+        }
+        else
+        {
+            // For admin users that see all markets
+            var marketId = (markets.options[markets.selectedIndex].value == "" ? 0 : markets.options[markets.selectedIndex].value);
+            
+            var total = 0, totalObjective = 0;
+            for (var key in nbResaArray) {
+                if (marketId == key)
+                {
+                    document.getElementById("nbresa").innerHTML = nbResaArray[key]["nbresa"];
+                    if (nbResaArray[key]["nbresaObjective"] != -1)
+                        document.getElementById("nbresaObjective").innerHTML = nbResaArray[key]["nbresaObjective"];
+                    return;
+                }
+                total += nbResaArray[key]["nbresa"];
+                totalObjective += nbResaArray[key]["nbresaObjective"];
+            }
+            
+            // Otherwise print the total of reservation for all markets
+            document.getElementById("nbresa").innerHTML = total;
+            document.getElementById("nbresaObjective").innerHTML = totalObjective;
+        }
+    }
+    
+    function filterByMarket(id) {
+        // Declare variables
+        var table, column, columnIdx, tr, td, i, managed, shouldDisplay, nb = 0;
+        table = document.getElementById(id);
+        if (!table)
+            return;
+        
+        // Filter by market
+        var markets = document.getElementById("market");
+        if (markets)
+        {
+            var city = markets.options[markets.selectedIndex].text;
+            
+            // Find the column that corresponds to the market property
+            column = table.querySelector("thead th[data-property-name='city']");
+            
+            var columnIdx = 0;
+            while((column = column.previousSibling) != null) {
+                if(column.tagName) {
+                    columnIdx++;
+                }
+            }
+
+            // Loop through all table rows, and hide those who don't match the search query
+            tr = table.getElementsByTagName("tr");
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td");
+                if (td[columnIdx]) {
+                    shouldDisplay = (td[columnIdx].innerText.toLowerCase().trim() == city.toLowerCase().trim());
+                    if (city == "") shouldDisplay = true;
+                    tr[i].style.display = shouldDisplay ? "" : "none";
+                    
+                    if (shouldDisplay) nb++;
+                }
+            }
+            
+            // Edit number of matches items
+            var result = document.getElementById("nb" + id);
+            result.innerText = nb;
+            
+            // Edit links for previous and next 
+            var marketId = (markets.options[markets.selectedIndex].value == "" ? 0 : markets.options[markets.selectedIndex].value);
+            var route = " {{ url('dashboard', { 'date': previousDate, 'marketId':'marketId' }) }}";
+            route = route.replace("marketId", marketId);
+            document.getElementById("previousLink").href = route;
+            
+            route = " {{ url('dashboard', { 'date': nextDate, 'marketId':'marketId' }) }}";
+            route = route.replace("marketId", marketId);
+            document.getElementById("nextLink").href = route;        
+        }            
+    }
+
+    function activateTabById(tabId)
+    {
+        // Activate the tab according to its ID
+        var allTabs = document.getElementsByClassName("tab");
+        if (allTabs.length > 0)
+        {
+            for (var i = 0; i < allTabs[0].children.length; i++)
+            {
+                if (allTabs[0].children[i].id == tabId)
+                {
+                    allTabs[0].children[i].click();
+                }
+            }
+        }
+    }
+    
+    function activateTab(index)
+    {
+        // Activate the tab according to its index
+        var allTabs = document.getElementsByClassName("tab");
+        if (allTabs.length > 0)
+        {
+            if (allTabs[0].children.length > index)
+                allTabs[0].children[index].click();
+        }
+    }
+  
+     // Reservation tables sorting 
+    $(document).ready(function() {
+        // Simulate tab click event because DataTable should be visible to apply styles 
+        activateTabById("section2");
+        
+        $('#checkin').DataTable({
+            "paging":    false,
+            "ordering":  true,
+            "info":      false,
+            "searching": false,   
+        });
+        
+        $('#checkout').DataTable({
+            "paging":    false,
+            "ordering":  true,
+            "info":      false,
+            "searching": false,
+        });
+        
+        if ( '{{ app.user.username }}' != 'florent@wehost.fr')
+        {
+            // Activate by default 'Alert' tab
+            activateTab(0); 
+        } else {
+            
+            var hasErrorAlert = document.getElementById("error_alert");
+            if (hasErrorAlert)
+            {
+                activateTab(0);
+                return;
+            }
+            
+            var lastActiveTab = localStorage.getItem('activeTab');
+            if (lastActiveTab)
+            {
+                // Activate the last tab stored in session
+                var tabContentToActivate = document.getElementById(lastActiveTab);
+                if (tabContentToActivate)
+                {
+                    tabContentToActivate.click();
+                    return;
+                }
+            }
+           
+            // Activate the first tab by default
+            activateTab(0);
+        }
+    } );
+         
+    window.addEventListener('load', function() { 
+        filterByMarket("checkins");
+        filterByMarket("checkin"); 
+        filterByMarket("checkout"); 
+        filterByMarket("cleaning");
+        filterByMarket("extracharges");
+        changeNbResa();
+    });
+</script>
+{% endblock %}

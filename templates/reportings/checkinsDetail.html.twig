@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block content %}
+<div class="table-responsive content-panel">
+    <h2>{{ checkins|length }} Checkins for period {{ yearMonth }}</h2>
+    <hr />
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Checker</th>
+                <th>Market</th>
+                <th>Property</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Cost</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in checkins %}
+               <tr>
+                    <td>{{ c.checker.name }}</td>
+                    <td>{{ c.checker.market.name }}</td>
+                    <td>{{ c.reservation.property.label }}</td>
+                    <td>{{ c.date|formatDate }}</td>
+                    <td>{{ c.time|formatTime }}</td>
+                    <td>{{ c.amountWithoutTaxes|formatMoney }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

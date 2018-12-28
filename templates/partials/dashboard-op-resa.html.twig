@@ -1,0 +1,24 @@
+ 
+{% set base_url_property = url('admin', { 'entity': 'Reservation', 'action': 'list', byProperty: 'prop_id', 'redirect': 'dashboard', 'redirectParam[date]': currentMonth, 'redirectParam[marketId]': selectedMarket }) %} 
+{% set base_url_new_cleaning = url('admin', { 'entity': 'Cleaning', 'action': 'new', 'reservation': 'reservation_id', 'redirect': 'dashboard', 'redirectParam[date]': currentMonth, 'redirectParam[marketId]': selectedMarket  }) %} 
+{% set base_url_edit_cleaning = url('admin', { 'entity': 'Cleaning', 'action': 'edit', 'reservation': 'reservation_id', 'id': 'cleaning_id', 'redirect': 'dashboard', 'redirectParam[date]': currentMonth, 'redirectParam[marketId]': selectedMarket }) %}
+{% set base_url_edit_reservation = url('admin', { 'entity': 'ImportPrice', 'action': 'edit', 'id': 'reservation_id', 'redirect': 'dashboard', 'redirectParam[date]': currentMonth, 'redirectParam[marketId]': selectedMarket }) %}
+{% set base_url_new_checkin = url('admin', { 'entity': 'Checkin', 'action': 'new', 'reservation': 'reservation_id', 'redirect': 'dashboard', 'redirectParam[date]': currentMonth, 'redirectParam[marketId]': selectedMarket  }) %} 
+{% set base_url_edit_checkin = url('admin', { 'entity': 'Checkin', 'action': 'edit', 'reservation': 'reservation_id', 'id': 'checkin_id', 'redirect': 'dashboard', 'redirectParam[date]': currentMonth, 'redirectParam[marketId]': selectedMarket }) %}
+
+{% set showCheckoutTab = (app.user.preferences['dashboard_display_checkout'] is defined) %} 
+{% set width = (showCheckoutTab ? '49' : '98') %} 
+
+<p><a class="linkDefault" href="{{ url('admin', { 'entity': 'ImportPrice', 'action': 'new', 'redirect': 'dashboard', 'redirectParam[date]': currentMonth, 'redirectParam[marketId]': selectedMarket  }) }}">
+    Add a new reservation</a>
+</p>
+    
+{% include 'partials/template-reservation.html.twig' 
+    with {'currentReporting': reporting['resaByCheckinDate'], 'position': 'left', 'width': width, 'idSection': 'checkin'} 
+%}
+
+{% if showCheckoutTab %}
+    {% include 'partials/template-reservation.html.twig' 
+        with {'currentReporting': reporting['resaByCheckoutDate'], 'position': 'right', 'width': width, 'idSection': 'checkout'} 
+    %}
+{% endif %}

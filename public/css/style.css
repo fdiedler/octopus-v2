@@ -1,0 +1,221 @@
+/* === Reset === */
+
+body {
+    font-family: Helvetica,"Helvetica Neue",Arial,sans-serif !important;
+    font-size: 14px !important;
+    margin: 0px;
+    padding: 0px;
+}
+
+/* === Global styles === */
+
+.main-navbar {
+    background-color: #4eb980;
+    line-height: 1.42857;
+    min-height: 32px !important;
+    max-height: 100px;
+    z-index: 1000;
+}
+
+.content-wrapper {
+    padding:8px;
+}
+
+/* === Login panel styles === */
+
+.login-panel {
+    margin: 0 auto;
+    margin-top: 100px;
+    width: 600px;
+    min-height: 200px;
+    text-align: center;
+    padding: 20px;
+}
+
+.login-logo {
+    height: 200px;
+}
+
+.login-error {
+    color: red;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* === hide EasyAdmin side-bar === */
+
+.easyadmin .content-wrapper {
+    margin-left: 0px !important;
+}
+
+.main-sidebar {
+    visibility: hidden;
+}
+
+#header-logo {
+    margin-left: 15px;
+}
+
+/* === Form widget: TimePeriod(s) === */
+
+.field-time_period label {
+    display: none;
+}
+
+.field-time_period .form-inline {
+    float: left;
+}
+
+.field-time_period span {
+    float: left;
+    padding: 5px;
+    margin-top: 2px;
+}
+
+/* === Style for specific pages === */
+
+#turnover_reporting .currentPeriod {
+    font-weight: bolder;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.content-panel {
+    padding:15px;
+}
+
+/* === Dashboard styles === */
+
+/* Style the tab */
+.tab {
+    overflow: hidden;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+    margin:0 5px;
+    font-weight:bold;
+}
+
+/* Style the buttons inside the tab */
+.tab button {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+    font-size: 17px;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+    background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab button.activate {
+    background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+    display: none;
+    border: 1px solid #bbb;
+    margin:0 5px;
+    padding: 12px;
+    -webkit-animation: fadeEffect 1s;
+    animation: fadeEffect 1s;
+}
+
+.tablinks {
+    font-weight:bold;
+}
+
+/* Fade in tabs */
+@-webkit-keyframes fadeEffect {
+    from {opacity: 0;}
+    to {opacity: 1;}
+}
+
+@keyframes fadeEffect {
+    from {opacity: 0;}
+    to {opacity: 1;}
+}
+
+.dashboard_selector {
+    background-color:#DDD;
+    width:98%;
+    margin:10px;
+    padding:10px;
+}
+
+.dashboard_op_section {
+    background-color:#FFF;
+    float:left;
+    margin-bottom:50px;
+    width:98%;
+}
+
+.dashboard_date_header {
+    text-align:center;
+    margin-top:20px;
+    margin-bottom:30px;
+    clear:both; /* Cancel float attribute from dashboard_header */
+}
+
+.dashboard_header {
+    background-color:#FFF3CD;
+    min-height:30px;
+    margin:-12px -12px 10px -12px; /* negative value allow to cancel the parent margin */
+    padding:5px 10px;
+    border-bottom:2px solid #CCC;
+}
+
+
+.roundCorner {
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+}
+
+.filterArea {
+    width:100%;
+    float:left;
+    background-color: #EEE;
+    border:1px solid #AAA;
+    padding:10px;
+    margin-bottom:10px;
+}
+
+.filterArea .elem {
+    
+}
+
+.linkSelected {
+    color: #009933;
+    font-weight:bold;
+    pointer-events: none; # disable link
+}
+
+.linkDefault {
+    text-decoration:underline;
+    color:black;
+}
+
+/* A few custom styles for date inputs */
+.currentPeriod input[type="date"] {
+    appearance: none;
+    -webkit-appearance: none;
+    font-size: 18px;
+    border:1px solid #ecf0f1;
+    background:#ecf0f1;
+    padding:5px;
+    display: inline-block !important;
+    visibility: visible !important;
+}
+
+/**** Datatable overloading styles ***/
+.dataTables_wrapper
+{
+    min-height:150px;
+}

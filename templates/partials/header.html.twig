@@ -1,0 +1,68 @@
+<nav class="main-navbar" role="navigation">
+    <ul id="main-navbar-menu">
+        {% set adminUserId = app.session.get('adminUserId', null) %}
+        {% if adminUserId != null %}
+            <li><a style='background-color:#FFFF66; color:black; font-weight:bold;'><span>Logged as {{ (app.user.username|split('@'))[0]|capitalize }} </span></a></li>
+        {% endif %}
+        
+        <li><a href='{{ url('dashboard') }}'><span>Dashboard</span></a></li>
+        
+        {% if is_granted('ROLE_USER') %}
+        <li class='has-sub'><a href='#'><span>Listings</span></a>
+            <ul>
+                <li><a href='{{ url('admin', { 'entity': 'Host' }) }}'><span>Hosts</span></a></li>
+                <li><a href='{{ url('admin', { 'entity': 'Property' }) }}'><span>Properties</span></a></li>
+                <li><a href='{{ url('admin', { 'entity': 'ImportPrice' }) }}'><span>Reservations</span></a></li>
+            </ul>
+        </li>
+        
+        <li class='has-sub'><a href='#'><span>Operational</span></a>
+            <ul>
+                <li><a href="{{ url('admin', { 'entity': 'Checker' }) }}">Checker</a></li>
+                <li><a href="{{ url('admin', { 'entity': 'Checkin' }) }}">Checkins</a></li>
+                <li><a href="{{ url('admin', { 'entity': 'CleaningPresta' }) }}">Cleaning providers</a></li>
+                <li><a href='{{ url('admin', { 'entity': 'Cleaning' }) }}'><span>Cleanings</span></a></li>
+                <li><a href='{{ url('admin', { 'entity': 'ExtraCharge' }) }}'><span>Extra Charges</span></a></li>
+            </ul>
+        </li>
+        {% endif %}
+        
+        {% if is_granted('ROLE_USER') %}
+            <li><a href="{{ url('invoicing') }}">Invoicing</a></li>
+        {% endif %}
+        
+        {% if is_granted('ROLE_REPORTING') %}
+            <li class='has-sub'><a href="#">Reportings</a>
+                <ul>
+                    <li><a href='{{ url('financial_reporting') }}'><span>Financial</span></a></li>
+                    <li><a href='{{ url('checkins_reporting') }}'><span>Checkins</span></a></li>
+                    
+                    {% if is_granted('ROLE_ADMIN') %}
+                        <li><a href='{{ url('charts_reporting') }}'><span>Charts</span></a></li>
+                    {% endif %}
+                </ul>
+            </li>
+        {% endif %}
+
+        <li class='right'><a title="Log out" href="{{ url('logout') }}"><i class="fa fa-power-off" style="color:#000"></i></a></li>
+        
+        {% if is_granted('ROLE_USER') %}
+            <li class='right'><a href='{{ url('user_preference') }}'><span>Preferences</span></a></li>
+        {% endif %}
+        
+        {% if adminUserId != null %}
+            <li class='right'><a href='{{ url('restore_user') }}'><span>Restore admin user</span></a></li>
+        {% endif %}
+        
+        {% if is_granted('ROLE_ADMIN') %}
+            <li class='right has-sub'><a href='#'><span>Administration</span></a>
+                <ul>
+                    <li><a href="{{ url('admin', { 'entity': 'User' }) }}">Users</a></li>
+                    <li><a href="{{ url('admin', { 'entity': 'Market' }) }}">Market</a></li>
+                    <li><a href="{{ url('admin', { 'entity': 'Cron' }) }}">Cron manager</a></li>
+                </ul>
+            </li>
+        {% endif %}
+        
+    </ul>
+</nav>

@@ -1,0 +1,38 @@
+<script type="text/javascript">
+    
+    $(document).ready(function() {
+        // Default to Standard cleaning type only for 'new' action
+        var pageURL = $(location).attr("href");
+        if (pageURL.indexOf("action=new") > -1)
+        {
+            $('#cleaning_type').val(0).change();
+            $('#cleaning_presta').val({{ entity.property and entity.property.defaultCleaningPresta ? entity.property.defaultCleaningPresta.id : null }});
+        }
+    });
+
+    $('#cleaning_property').change(function () {
+        // Trigger the change event when modifying the property value
+        $('#cleaning_type').trigger("change");
+    });
+    
+    $('#cleaning_type').change(function () {
+        $.ajax({        
+            url: "{{ path('get_cleaning_price') }}",
+            type: "GET",
+            dataType: "JSON",
+            data: {
+                // Add request parameters
+                propertyId: $('#cleaning_property').find(":selected").val(),
+                cleaningType: $('#cleaning_type').find(":selected").val()
+            },
+            success: function (response) {
+                document.getElementById('cleaning_amountWithoutTaxes').value = (response["cleaningPrice"] == "" ? "" : response["cleaningPrice"] / 100);
+                console.log(response);
+            },
+            error: function (err) {
+                document.getElementById('cleaning_amountWithoutTaxes').value = "Error";
+                console.log(err);
+            }
+        });
+    });
+</script>

@@ -1,0 +1,7 @@
+{% extends '@EasyAdmin/default/edit.html.twig' %}
+
+{% block body_javascript %}
+    {{ parent() }}
+
+    {{ include('easy_admin/jsCleaning.html.twig') }}
+{% endblock %}

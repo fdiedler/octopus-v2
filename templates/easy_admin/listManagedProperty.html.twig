@@ -1,0 +1,76 @@
+{% extends '@EasyAdmin/default/list.html.twig' %}
+
+{% block content_header %}
+    {{ parent() }}
+
+    <script>
+        function filterProperties(showManaged, showUnmanaged) {
+            // Declare variables
+            var table, column, columnIdx, tr, td, i, managed, shouldDisplay ;
+            table = document.getElementsByClassName("table")[0];
+
+            // Find the column that corresponds to the "Currently Managed" property
+            column = table.querySelector("thead th[data-property-name='currentlyManaged']");
+            var columnIdx = 0;
+            while((column = column.previousSibling) != null) {
+                if(column.tagName) {
+                    columnIdx++;
+                }
+            }
+
+            // Loop through all table rows, and hide those who don't match the search query
+            tr = table.getElementsByTagName("tr");
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td");
+                if (td[columnIdx]) {
+                    managed = td[columnIdx].innerText.toLowerCase().trim() == 'yes';
+                    shouldDisplay = (managed && showManaged) || ((!managed) && showUnmanaged);
+                    tr[i].style.display = shouldDisplay ? "" : "none";
+                }
+            }
+        }
+
+        window.addEventListener('load', function() { filterProperties(true,false); });
+    </script>
+
+    <div>
+        <a href="javascript:filterProperties(true, false)">Managed</a> |
+        <a href="javascript:filterProperties(false, true)">Standing-by</a> |
+        <a href="javascript:filterProperties(true, true)">All</a>
+    </div>
+{% endblock %}
+
+{% block table_body %}    
+    {% for item in paginator.currentPageResults %}
+        {# the empty string concatenation is needed when the primary key is an object (e.g. an Uuid object) #}
+        {% set _item_id = '' ~ attribute(item, _entity_config.primary_key_field_name) %}
+            
+        {% set styleLine = '' %}
+        {% if item.type == 1 %}
+            {% set styleLine = 'color:green' %}
+        {% endif %}
+        
+        <tr style="{{ styleLine }}" data-id="{{ _item_id }}">
+            {% for field, metadata in fields %}
+                {% set isSortingField = metadata.property == app.request.get('sortField') %}
+                {% set _column_label =  (metadata.label ?: field|humanize)|trans(_trans_parameters)  %}
+                
+                <td data-label="{{ _column_label }}" class="{{ isSortingField ? 'sorted' }} {{ metadata.dataType|lower }} {{ metadata.css_class }}">
+                    {% if field == 'label' and item.type == 1 %}
+                        {% include 'star.html.twig' with {'referer': 'easyadmin'} %}
+                    {% endif %}
+                    {{ easyadmin_render_field_for_list_view(_entity_config.name, item, metadata) }}
+                </td>
+            {% endfor %}
+
+            {% if _list_item_actions|length > 0 %}
+                {% set _column_label =  'list.row_actions'|trans(_trans_parameters, 'EasyAdminBundle') %}
+                <td data-label="{{ _column_label }}" class="actions">
+                {% block item_actions %}
+                   {{ parent() }}
+                {% endblock item_actions %}
+                </td>
+            {% endif %}
+        </tr>
+    {% endfor %}    
+{% endblock table_body %}

@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block content %}
+    
+    {% set usrPref = app.user.preferences|default([]) %}
+    
+    <h2>Customize your Dashboard view</h2>
+    <form method="post" action="{{ url('user_preference') }}">
+        <table class="table table-striped table-bordered">
+            <thead>
+            <tr>
+                <th width="30%">Label</th>
+                <th width="30%">Description</th>
+                <th>Value</th>
+            </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Enable Checkout table</td>
+                    <td>Allow to view the checkout table on Dashboard</td>
+                    <td>
+                        <input type="checkbox" name="dashboard_display_checkout" {{ usrPref['dashboard_display_checkout'] is defined ? "checked" : "" }} />
+                    </td>
+                </tr>
+                <tr>
+                    <td>Default date</td>
+                    <td>Display today's date by default instead of tomorrow's date on Dashboard</td>
+                    <td>
+                        <input type="checkbox" name="dashboard_display_current_date" {{ usrPref['dashboard_display_current_date'] is defined ? "checked" : "" }} />
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3">
+                        <button type="submit" class="btn btn-wehost btn-sm">Save preferences</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <input type="hidden" value="cool" name="test" />
+    </form>
+{% endblock %}
+
+{% block javascript %}
+    <script src="/bundles/easyadmin/javascript/easyadmin-all.min.js"></script>
+{% endblock %}

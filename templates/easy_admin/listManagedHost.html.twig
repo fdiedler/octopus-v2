@@ -1,0 +1,41 @@
+{% extends '@EasyAdmin/default/list.html.twig' %}
+
+{% block content_header %}
+    {{ parent() }}
+
+    <script>
+        function filterProperties(showManaged, showUnmanaged) {
+            // Declare variables
+            var table, column, columnIdx, tr, td, i, managed, shouldDisplay ;
+            table = document.getElementsByClassName("table")[0];
+
+            // Find the column that corresponds to the "Currently Managed" property
+            column = table.querySelector("thead th[data-property-name='currentlyManaged']");
+            var columnIdx = 0;
+            while((column = column.previousSibling) != null) {
+                if(column.tagName) {
+                    columnIdx++;
+                }
+            }
+
+            // Loop through all table rows, and hide those who don't match the search query
+            tr = table.getElementsByTagName("tr");
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td");
+                if (td[columnIdx]) {
+                    managed = td[columnIdx].innerText.toLowerCase().trim() == 'yes';
+                    shouldDisplay = (managed && showManaged) || ((!managed) && showUnmanaged);
+                    tr[i].style.display = shouldDisplay ? "" : "none";
+                }
+            }
+        }
+
+        window.addEventListener('load', function() { filterProperties(true,false); });
+    </script>
+
+    <div>
+        <a href="javascript:filterProperties(true, false)">Managed</a> |
+        <a href="javascript:filterProperties(false, true)">Standing-by</a> |
+        <a href="javascript:filterProperties(true, true)">All</a>
+    </div>
+{% endblock %}

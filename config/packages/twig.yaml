@@ -1,0 +1,9 @@
+twig:
+    default_path: '%kernel.project_dir%/templates'
+    debug: '%kernel.debug%'
+    strict_variables: '%kernel.debug%'
+    date:
+        format: "Y-m-d H:i:s"
+        timezone: "Europe/Paris"
+    form_themes:
+      - 'form/fields.html.twig'

@@ -1,0 +1,82 @@
+<div id="Operational" class="tabcontent">
+
+    <div class="dashboard_header">
+        
+        {% if markets|length > 1 %}
+            <span style="float:left; font-weight:bold;">
+                <label>Filter by market : </label>
+                <select id="market" name="market" onchange='javascript:changeNbResa(); filterByMarket("checkins"); javascript:filterByMarket("extracharges"); javascript:filterByMarket("checkin"); javascript:filterByMarket("checkout"); javascript:filterByMarket("cleaning")'>
+                    <option value=""></option>
+                    {% for market in markets %}
+                        <option value="{{ market.id }}" {{ selectedMarket == market.id ? "selected" : "" }} >{{ market }}</option>
+                    {% endfor %}
+                </select>
+            </span>
+        {% endif %}
+        
+        <span style="float:right; font-weight:bold;">
+            Managed reservations: <span id="nbresa">***</span> / <span style="color:red" id="nbresaObjective">***</span>
+        </span>
+    </div>
+    
+    {% include 'partials/dashboard-header-date.html.twig' 
+        with {'previousDate': previousDate, 'nextDate': nextDate, 'selectedMarket': selectedMarket} 
+    %}
+
+    <div id="accordion">
+        {# Don't display checkin section... #}
+        {# include 'partials/dashboard-op-checkin.html.twig' #}
+        
+        {% if reporting['extracharges']|length > 0 %}
+            <div class="card">
+            <div class="card-header" id="headingOne">
+                <h5 class="mb-0">
+                    <button style="color:black; font-weight:bold;" class="btn btn-link" data-toggle="collapse" data-target="#collapseExtraChargeSection">
+                        Extra charges overview (<span id="nbextracharges">{{ reporting['extracharges']|length }}</span> items)
+                    </button>
+                </h5>
+            </div>
+
+            <div id="collapseExtraChargeSection" class="collapse" data-parent="#accordion">
+                <div class="card-body">
+                    {% include 'partials/dashboard-op-extracharge.html.twig' %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="card">
+            <div class="card-header" id="headingOne">
+                <h5 class="mb-0">
+                    <button style="color:black; font-weight:bold;" class="btn btn-link" data-toggle="collapse" data-target="#collapseCleaningSection">
+                        Cleaning overview (<span id="nbcleaning">{{ reporting['cleanings']|length }}</span> items)
+                    </button>
+                </h5>
+            </div>
+
+            <div id="collapseCleaningSection" class="collapse" data-parent="#accordion">
+                <div class="card-body">
+                    {% include 'partials/dashboard-op-cleaning.html.twig' %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header" id="headingOne">
+                <h5 class="mb-0">
+                    <button style="color:black; font-weight:bold;" class="btn btn-link" data-toggle="collapse" data-target="#collapseResaSection">
+                        Reservations overview (<span id="nbcheckin">{{ reporting['resaByCheckinDate']|length }}</span> checkins and <span id="nbcheckout">{{ reporting['resaByCheckoutDate']|length }}</span> checkouts)
+                    </button>
+                </h5>
+            </div>
+
+            <div id="collapseResaSection" class="collapse show" data-parent="#accordion">
+                <div class="card-body">
+                    {% include 'partials/dashboard-op-resa.html.twig' %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div style="clear:both;"></div>
+</div>

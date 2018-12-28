@@ -1,0 +1,68 @@
+<script type="text/javascript">
+
+    // Allow to display a modal dialog when editing a Checkin
+    $('#edit-checkin-form').submit(function(event) {
+        // Display a confirm popup only if there is a Checker selected and there is a modification of the Checker
+        var entityCheckerId = {{ entity.checker ? entity.checker.id : -1 }};
+        var selectedCheckerId = $('#checkin_checker').find(":selected").val();
+        if (selectedCheckerId != "" && selectedCheckerId != entityCheckerId)
+        {
+            // This will prevent the default submit
+            event.preventDefault();
+
+            document.getElementById('checkername').innerHTML = $('#checkin_checker').find(":selected").text();
+        
+            $('#modal-confirm').modal({ backdrop: true, keyboard: true })
+                .off('click', '#modal-confirm-button')
+                .on('click', '#modal-confirm-button', function () {
+                    // Re-enable form submitting !
+                    $('#edit-checkin-form').unbind('submit').submit()
+                });
+        }
+    });
+    
+    // Allow to display a modal dialog when adding a Checkin
+    $('#new-checkin-form').submit(function(event) {
+        
+        var selectedCheckerId = $('#checkin_checker').find(":selected").val();
+        if (selectedCheckerId != "")
+        {
+            // This will prevent the default submit
+            event.preventDefault();
+
+            document.getElementById('checkername').innerHTML = $('#checkin_checker').find(":selected").text();
+                    
+            $('#modal-confirm').modal({ backdrop: true, keyboard: true })
+                .off('click', '#modal-confirm-button')
+                .on('click', '#modal-confirm-button', function () {
+                    // Re-enable form submitting !
+                    $('#new-checkin-form').unbind('submit').submit()
+                });
+        }
+    });
+ 
+    $('#cleaning_property').change(function () {
+        // Trigger the change event when modifying the property value
+        $('#checkin_checker').trigger("change");
+    });
+    
+    $('#checkin_checker').change(function () {
+        $.ajax({        
+            url: "{{ path('get_checkin_price') }}",
+            type: "GET",
+            dataType: "JSON",
+            data: {
+                // Add request parameters
+                checkerId: $('#checkin_checker').find(":selected").val()
+            },
+            success: function (response) {
+                document.getElementById('checkin_amountWithoutTaxes').value = (response["checkinPrice"] == "" ? "" : response["checkinPrice"] / 100);
+                console.log(response);
+            },
+            error: function (err) {
+                document.getElementById('checkin_amountWithoutTaxes').value = "Error";
+                console.log(err);
+            }
+        });
+    });
+</script>

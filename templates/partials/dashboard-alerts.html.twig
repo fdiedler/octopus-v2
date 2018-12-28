@@ -1,0 +1,122 @@
+<div id="Alerts" class="tabcontent">
+    {% set base_url_edit_cleaning = url('admin', { 'entity': 'Cleaning', 'action': 'edit', 'id': 'cleaning_id', 'redirect': 'dashboard', 'redirectParam[date]': currentMonth, 'redirectParam[marketId]': selectedMarket }) %}
+    
+    {% set base_url_new_cleaning = url('admin', { 'entity': 'Cleaning', 'action': 'new', 'reservation': 'reservation_id', 'redirect': 'dashboard', 'redirectParam[date]': currentMonth, 'redirectParam[marketId]': selectedMarket  }) %} 
+    
+    {% set base_url_new_checkin = url('admin', { 'entity': 'Checkin', 'action': 'new', 'reservation': 'reservation_id', 'redirect': 'dashboard', 'redirectParam[date]': currentMonth, 'redirectParam[marketId]': selectedMarket  }) %} 
+    
+    {% set errorAlerts = alerts["error"] %}
+    {% set warningAlerts = alerts["warning"] %}
+    
+    {% if (errorAlerts["cron"] is defined) %}
+        <div id="error_alert" class="alert alert-danger">
+            <h3>Beware !</h3>
+            <p>Data are not synchronised properly !
+            <br />
+            Some cron jobs have failed... <a href="{{ url('admin', {entity: 'Cron'}) }}">More...</a></p>
+        </div>
+    {% endif %}
+    
+    {% if errorAlerts["reservationWithNoCleaning"] is defined 
+            or errorAlerts["reservationWithNoCheckin"] is defined 
+            or errorAlerts["duplicate"] is defined 
+    %}
+        <div id="error_alert" class="alert alert-danger">
+            <h3>Beware !</h3>
+            {% for id, alert in errorAlerts["reservationWithNoCleaning"]|default() %}
+                <div class="row">
+                    <div class="col-md-9">{{ alert }} - Checkin today but no cleaning scheduled !</div>
+                    <div class="col-md-3">
+                        <a href="{{ base_url_new_cleaning|replace({'reservation_id': id }) }}">Schedule a cleaning now</a>
+                    </div>
+                </div> 
+            {% endfor %}
+            
+            {% for id, alert in errorAlerts["reservationWithNoCheckin"]|default() %}
+                <div class="row">
+                    <div class="col-md-9">{{ alert }} - Checkin today but no checkin date or checker scheduled !</div>
+                    <div class="col-md-3">
+                        <a href="{{ base_url_new_checkin|replace({'reservation_id': id }) }}">Schedule a checkin now</a>
+                    </div>
+                </div> 
+            {% endfor %}
+            
+            {% for id, data in errorAlerts["duplicate"]|default() %}
+                <div class="row">
+                    <div class="col-md-9">{{ id }} - Duplicate entry detected ! <br />
+                        <ul>
+                            {% for propertyId, nbResa in data %}
+                                <li>Property id: {{ propertyId }} has {{ nbResa }} reservations</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="#">Delete duplicate entries</a>
+                    </div>
+                </div> 
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+
+    {% if warningAlerts["calendar"] is defined %}
+        <div class="alert alert-warning">
+            <h3>Property data warnings !</h3>
+            {% for id, alert in warningAlerts["calendar"] %}
+                <div class="row">
+                    <div class="col-md-9">{{ alert }} - Calendar not set properly !</div>
+                    <div class="col-md-3">
+                        <a href="{{ url('admin', {entity: 'Property', action: 'edit', id: id }) }}">Fix this problem</a>
+                    </div>
+                </div> 
+            {% endfor %}
+        </div>
+     {% endif %}
+     
+     {% if warningAlerts["cleaning"] is defined 
+            or warningAlerts["cleaningPresta"] is defined 
+            or warningAlerts["reservationWithNoCleaning"] is defined
+            or warningAlerts["reservationWithNoCheckin"] is defined
+     %}
+        <div class="alert alert-warning">
+            <h3>Cleaning data warnings !</h3>
+            
+            {% for id, alert in warningAlerts["cleaning"]|default() %}
+                <div class="row">
+                    <div class="col-md-9">{{ alert }} - Cleaning date is scheduled before the checkout !</div>
+                    <div class="col-md-3">
+                        <a href="{{ url('admin', {entity: 'Cleaning', action: 'edit', id: id }) }}">Fix this problem</a>
+                    </div>
+                </div>
+            {% endfor %}
+            
+            
+            {% for id, alert in warningAlerts["cleaningPresta"]|default() %}
+                <div class="row">
+                    <div class="col-md-9">{{ alert }} - Cleaning type and assigned provider mismatch !</div>
+                    <div class="col-md-3">
+                        <a href="{{ base_url_edit_cleaning|replace({'cleaning_id': id }) }}">Fix this problem</a>
+                    </div>
+                </div> 
+            {% endfor %}
+            
+            {% for id, alert in warningAlerts["reservationWithNoCleaning"]|default() %}
+                <div class="row">
+                    <div class="col-md-9">{{ alert }} - No cleaning associated to this reservation !</div>
+                    <div class="col-md-3">
+                        <a href="{{ base_url_new_cleaning|replace({'reservation_id': id }) }}">Add a cleaning</a>
+                    </div>
+                </div> 
+            {% endfor %}
+            
+            {% for id, alert in warningAlerts["reservationWithNoCheckin"]|default() %}
+                <div class="row">
+                    <div class="col-md-9">{{ alert }} - No checkin or checker associated to this reservation !</div>
+                    <div class="col-md-3">
+                        <a href="{{ base_url_new_checkin|replace({'reservation_id': id }) }}">Add a checkin</a>
+                    </div>
+                </div> 
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>

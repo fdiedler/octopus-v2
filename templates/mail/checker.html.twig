@@ -1,0 +1,13 @@
+{% block subject %}
+    Nouvelle mission attribuée
+{% endblock %}
+ 
+{% block body_text %}
+    default text    
+{% endblock %}
+ 
+{% block body_html %}
+    <p>Bonjour {{ checker_name }}</p>
+    <p>Une nouvelle mission vous a été attribuée pour le {{ checkin_date|formatDate }} à {{ checkin_hour }} dans le logement : "{{ checkin_property }}" </p>
+    <p>Merci de <a href='https://octopus.wehost.fr' target='_blank'>vous connecter</a> sur Octopus pour accéder aux informations nécessaires.</p>
+{% endblock %}

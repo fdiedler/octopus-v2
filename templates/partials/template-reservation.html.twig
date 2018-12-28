@@ -1,0 +1,89 @@
+ 
+{% set base_url_property = url('admin', { 'entity': 'Reservation', 'action': 'list', byProperty: 'prop_id', 'redirect': 'dashboard', 'redirectParam[date]': currentMonth, 'redirectParam[marketId]': selectedMarket }) %} 
+{% set base_url_new_cleaning = url('admin', { 'entity': 'Cleaning', 'action': 'new', 'reservation': 'reservation_id', 'redirect': 'dashboard', 'redirectParam[date]': currentMonth, 'redirectParam[marketId]': selectedMarket  }) %} 
+{% set base_url_edit_cleaning = url('admin', { 'entity': 'Cleaning', 'action': 'edit', 'reservation': 'reservation_id', 'id': 'cleaning_id', 'redirect': 'dashboard', 'redirectParam[date]': currentMonth, 'redirectParam[marketId]': selectedMarket }) %}
+{% set base_url_edit_reservation = url('admin', { 'entity': 'ImportPrice', 'action': 'edit', 'id': 'reservation_id', 'redirect': 'dashboard', 'redirectParam[date]': currentMonth, 'redirectParam[marketId]': selectedMarket }) %}
+{% set base_url_new_checkin = url('admin', { 'entity': 'Checkin', 'action': 'new', 'reservation': 'reservation_id', 'redirect': 'dashboard', 'redirectParam[date]': currentMonth, 'redirectParam[marketId]': selectedMarket  }) %} 
+{% set base_url_edit_checkin = url('admin', { 'entity': 'Checkin', 'action': 'edit', 'reservation': 'reservation_id', 'id': 'checkin_id', 'redirect': 'dashboard', 'redirectParam[date]': currentMonth, 'redirectParam[marketId]': selectedMarket }) %}
+  
+<div class="dashboard_op_section" style="float: {{ position }}; width:{{ width }}%">
+    <div class="table-responsive-xl">
+    <table id="{{ idSection }}" class="cell-border compact hover">
+        <thead>
+            <tr>
+                <th style="display:none" data-property-name="city">City</th>
+                <th class="th-sm">Property</th>
+                <th>Checkin&nbsp;&nbsp;</th> <!-- spaces used to grow up the column size -->
+                <th>Checkout</th>
+                <th>Cleaning</th>
+                {% if idSection != 'checkout' %}
+                    <th>Checker</th>
+                    <th>Time</th>
+                {% endif %}
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for id, data in currentReporting %}
+                {% set resa = data.reservation %}
+                {% set color = "" %}
+                {% set icon = "" %}
+                {% if resa.cleanings|length == 0 and resa.checkins|length > 0 %}
+                
+                {% elseif resa.cleanings|length > 0 and resa.checkins|length == 0 %}
+                
+                {% elseif resa.cleanings|length > 0 and resa.checkins|length > 0 %}
+                    {% set color = "#D0ffD0" %}
+                    {% set icon = '<i class="fa fa-check" style="color:green"></i>' %}
+                {% endif %}
+
+                <tr style="font-size:11px; background-color:{{ color }}">
+                    <td style="display:none">{{ data.property.market.name }}</td>
+                    <td>
+                        {% if data.property.type == 1 %}
+                            {% include 'star.html.twig' with {'referer': 'dashboard'} %}
+                            <a style="background-color:yellow" class="linkDefault" href="{{ base_url_property|replace({'prop_id': data.property.id }) }}">{{ data.property.label }}</a>
+                        {% else %}
+                            {{ icon|raw }}
+                            
+                            <a class="linkDefault" href="{{ base_url_property|replace({'prop_id': data.property.id }) }}">{{ data.property.label }}</a>
+                        {% endif %}
+                        
+                    </td>
+                    <td>{{ resa.checkinDate|formatDate }}</td>
+                    <td>{{ resa.checkoutDate|formatDate }}</td>
+                    <td style='color:blue'>{{ resa.cleanings|length > 0 ? resa.cleanings[0].date|formatDate : "" }}</td>
+                    {% if idSection != 'checkout' %}
+                        <td style='color:green'>{{ resa.checkins|length > 0 ? resa.checkins[0].checker : "" }}</td>
+                        <td style='color:green'>{{ resa.checkins|length > 0 ? resa.checkins[0].time|formatTime : "" }}</td>
+                    {% endif %}
+                    <td>
+                        <div class="btn-group">
+                          <button type="button" class="btn btn-wehost btn-sm dropdown-toggle" data-toggle="dropdown">
+                            Choose...
+                          </button>
+                          <div class="dropdown-menu">
+                            {% if resa.cleanings|length == 0 %}
+                                <a class="dropdown-item" href="{{ base_url_new_cleaning|replace({'reservation_id': resa.id }) }}">Add cleaning</a>
+                            {% else %}
+                                <a class="dropdown-item" href="{{ base_url_edit_cleaning|replace({'reservation_id': resa.id, 'cleaning_id': resa.cleanings[0].id }) }}">Edit cleaning</a>
+                            {% endif %}
+                          
+                            {% if resa.checkins|length == 0 %}
+                                <a class="dropdown-item" href="{{ base_url_new_checkin|replace({'reservation_id': resa.id }) }}">Add checkin</a>
+                            {% else %}
+                                <a class="dropdown-item" href="{{ base_url_edit_checkin|replace({'reservation_id': resa.id, 'checkin_id': resa.checkins[0].id }) }}">Edit checkin</a>
+                            {% endif %}
+                            <div class="dropdown-divider"></div>
+                            
+                            <a class="dropdown-item" href="{{ base_url_edit_reservation|replace({'reservation_id': resa.id }) }}">Edit reservation</a>
+                        
+                          </div>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>

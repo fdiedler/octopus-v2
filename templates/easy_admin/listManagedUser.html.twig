@@ -1,0 +1,11 @@
+{% extends '@EasyAdmin/default/list.html.twig' %}
+
+{% block content_header %}
+    {{ parent() }}
+{% endblock %}
+
+{% block main %}    
+    {% include 'easy_admin/globalListTable.html.twig' with {'items': users, 'label': 'Admins and users' } %} 
+    {% include 'easy_admin/globalListTable.html.twig' with {'items': checkers, 'label': 'Checkers' } %} 
+    {% include 'easy_admin/globalListTable.html.twig' with {'items': cleaningsProviders, 'label': 'Cleaning providers' } %} 
+{% endblock main %}

@@ -1,0 +1,60 @@
+{% extends 'base.html.twig' %}
+
+{% block content %}
+    <div class="content-panel">
+        <h2>Checkins and checkers reporting</h2>
+        <hr />
+        <p>
+            {% if previousMonth is defined %}
+                <a class="btn btn-outline-dark btn-sm" href="{{ url('checkins_reporting', { 'yearMonth': previousMonth }) }}">&lt; Previous month</a>
+            {% endif %}
+
+            <span style="font-weight:bold; padding:0 20px;">{{ currentMonth }}</span>
+
+            {% if nextMonth is defined %}
+                <a class="btn btn-outline-dark btn-sm" href="{{ url('checkins_reporting', { 'yearMonth': nextMonth }) }}">Next month &gt;</a>
+            {% endif %}
+        </p>
+
+        <div id="accordion">
+            {% for market, data in reporting %}
+                {% set sectionId = market|replace({'/': '', ' ': '', "'": ''}) %}
+                <div class="card">
+                    <div class="card-header" id="headingOne">
+                        <h5 class="mb-0">
+                            <button style="color:black; font-weight:bold;" class="btn btn-link" data-toggle="collapse" data-target="#collapseMarket{{ sectionId }}">
+                                {{ market }} - {{ data["totalCheckins"] }} checkins - {{ data["totalCost"]|formatMoney }}
+                            </button>
+                        </h5>
+                    </div>
+
+                    <div id="collapseMarket{{ sectionId }}" class="collapse" data-parent="#accordion">
+                        <div class="card-body">
+                            <table class="table table-striped table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Checker</th>
+                                        <th>Total checkin</th>
+                                        <th>Total cost</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% for item in data["detail"] %}
+                                    <tr>
+                                        <td>{{ item["checker"].name }}</td>
+                                        <td>{{ item["totalCheckins"] }}</td>
+                                        <td>{{ item["cost"]|formatMoney }}</td>
+                                        <td><a href="{{ url('checkins_detail_reporting', { 'yearMonth': currentMonth, 'checkerId': item["checker"].id }) }}">Detail</a></td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+{% endblock %}
